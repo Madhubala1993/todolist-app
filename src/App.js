@@ -10,10 +10,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function App() {
   const InitialList = [
-    "Create theme",
-    "Work on wordpress",
-    "Organize office main department",
-    "Error solve in HTML template",
+    { check: false, todo: "Create theme" },
+    { check: false, todo: "Work on wordpress" },
+    { check: false, todo: "Organize office main department" },
+    { check: false, todo: "Error solve in HTML template" },
   ];
 
   return (
@@ -26,12 +26,7 @@ export default function App() {
 function ToDoForm({ InitialList }) {
   const [task, setTask] = useState("");
   const [taskList, setTaskList] = useState(InitialList);
-  const [activeList, setActiveList] = useState([]);
-  const [compList, setCompList] = useState([]);
-
-  const [list, setList] = useState([]);
-  console.log(InitialList);
-
+  const [table, setTable] = useState("All");
   return (
     <div className="container">
       <div className="inputContainer">
@@ -44,7 +39,9 @@ function ToDoForm({ InitialList }) {
 
         <Button
           className="inputButton"
-          onClick={() => setTaskList([...taskList, task])}
+          onClick={() =>
+            setTaskList([...taskList, { check: false, todo: task }])
+          }
         >
           Add Task
         </Button>
@@ -55,7 +52,7 @@ function ToDoForm({ InitialList }) {
           variant="text"
           onClick={() => {
             console.log("All");
-            setList(taskList);
+            setTable("All");
           }}
         >
           All
@@ -64,8 +61,7 @@ function ToDoForm({ InitialList }) {
           variant="text"
           onClick={() => {
             console.log("active");
-            console.log(activeList);
-            setList(activeList);
+            setTable("Active");
           }}
         >
           Active
@@ -74,93 +70,101 @@ function ToDoForm({ InitialList }) {
           variant="text"
           onClick={() => {
             console.log("Completed");
-            setList(compList);
-            <CompletedList compList={compList} />;
+            setTable("Completed");
           }}
         >
           Completed
         </Button>
-        <ListActivities
-          list={list}
-          setList={setList}
-          compList={compList}
-          setCompList={setCompList}
-        />
+        {table == "Active"
+          ? taskList
+              .filter(({ check }) => check == false)
+              .map(({ check, todo }, index) => (
+                <ToDoList
+                  task={todo}
+                  check={check}
+                  index={index}
+                  key={todo}
+                  setTaskList={setTaskList}
+                  taskList={taskList}
+                />
+              ))
+          : ""}
+        {table == "Completed"
+          ? taskList
+              .filter(({ check }) => check == true)
+              .map(({ check, todo }, index) => (
+                <ToDoList
+                  task={todo}
+                  check={check}
+                  index={index}
+                  key={todo}
+                  setTaskList={setTaskList}
+                  taskList={taskList}
+                />
+              ))
+          : ""}
+        {table == "All"
+          ? taskList.map(({ check, todo }, index) => (
+              <ToDoList
+                task={todo}
+                check={check}
+                index={index}
+                key={todo}
+                setTaskList={setTaskList}
+                taskList={taskList}
+              />
+            ))
+          : ""}
       </div>
     </div>
   );
 }
 
-function ListActivities({ list, setList, compList, setCompList }) {
+function ToDoList({ task, check, index, setTaskList, taskList }) {
+  const handleChange = () => {
+    for (var t of taskList) {
+      if (t.todo === task) {
+        t.check = !check;
+        setTaskList([...taskList]);
+      }
+    }
+  };
+
   const deleteItem = (index) => {
     const deleteIndex = index;
-    const remainingList = list.filter((a, idx) => deleteIndex !== idx);
-    setList(remainingList);
+    const remainingList = taskList.filter(
+      ({ todo }, idx) => deleteIndex !== idx
+    );
+    setTaskList(remainingList);
   };
-  console.log(compList);
-  return (
-    <div>
-      {list.map((item, index) => (
-        <ToDoList
-          task={item}
-          index={index}
-          key={index}
-          deleteButton={
-            <IconButton
-              aria-label="delete"
-              color="error"
-              onClick={() => deleteItem(index)}
-            >
-              <DeleteIcon />
-            </IconButton>
-          }
-          newList={
-            <input
-              type="checkbox"
-              value={item}
-              onClick={(event) => {
-                if (event.target.checked) {
-                  setCompList([...compList, item]);
-                }
-              }}
-            />
-          }
-        />
-      ))}
-    </div>
-  );
-}
-
-function ToDoList({ deleteButton, task, index, newList }) {
-  const [checked, setChecked] = useState(false);
 
   return (
     <div>
       <FormGroup>
         <div className="listItems">
-          <p>
-            {newList}
-            {task}
-          </p>
-          {deleteButton}
+          {check ? (
+            <div>
+              <Checkbox defaultChecked onClick={() => handleChange()} />
+              <strike>
+                <span>{task}</span>
+              </strike>
+            </div>
+          ) : (
+            <div>
+              <Checkbox onClick={() => handleChange()} />
+              <span>{task}</span>
+            </div>
+          )}
+
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() => deleteItem(index)}
+          >
+            <DeleteIcon />
+          </IconButton>
         </div>
       </FormGroup>
-    </div>
-  );
-}
-
-function CompletedList({ compList }) {
-  console.log(compList);
-  return (
-    <div>
-      {compList.map((item, index) => (
-        <ToDoList
-          task={item}
-          index={index}
-          key={index}
-          newList={<input type="checkbox" value={item} checked />}
-        />
-      ))}
     </div>
   );
 }
