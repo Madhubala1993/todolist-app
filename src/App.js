@@ -3,7 +3,6 @@ import { useState } from "react/cjs/react.development";
 import Button from "@mui/material/Button";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -75,9 +74,9 @@ function ToDoForm({ InitialList }) {
         >
           Completed
         </Button>
-        {table == "Active"
+        {table === "Active"
           ? taskList
-              .filter(({ check }) => check == false)
+              .filter(({ check }) => check === false)
               .map(({ check, todo }, index) => (
                 <ToDoList
                   task={todo}
@@ -89,9 +88,9 @@ function ToDoForm({ InitialList }) {
                 />
               ))
           : ""}
-        {table == "Completed"
+        {table === "Completed"
           ? taskList
-              .filter(({ check }) => check == true)
+              .filter(({ check }) => check === true)
               .map(({ check, todo }, index) => (
                 <ToDoList
                   task={todo}
@@ -103,7 +102,7 @@ function ToDoForm({ InitialList }) {
                 />
               ))
           : ""}
-        {table == "All"
+        {table === "All"
           ? taskList.map(({ check, todo }, index) => (
               <ToDoList
                 task={todo}
